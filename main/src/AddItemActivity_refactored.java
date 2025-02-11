@@ -36,27 +36,119 @@ abstract class Item {
         this.description = description;
     }
 
-    public abstract Bitmap getImage();
+    public abstract Image getImage();
 }
 
 // Android platform-specific Item implementation
-class AndroidItem extends Item {
+class AndroidItem implements Item {
 
     private Bitmap image;
 
     public AndroidItem(String title, String maker, String description, Bitmap image) {
-        super(title, maker, description);
+        this.title = title;
+        this.maker = maker;
+        this.description = description;
         this.image = image;
     }
 
+
+
     @Override
-    public Bitmap getImage() {
+    public Image getImage() {
+        return image;
+    }
+}
+// Image interface (platform-independent)
+interface Image {
+    // Methods to get and set the image
+}
+
+// Interface for Item validation
+interface ItemValidator {
+    boolean validateItem(Item item);
+}
+
+// Interface for Item creation
+interface ItemCreator {
+    boolean saveItem(Item item);
+}
+
+// Item list controller interface
+class ItemListController {
+
+    private final ItemList item_list;
+
+    public ItemListController(ItemList item_list) {
+        this.item_list = item_list;
+    }
+
+    public boolean addItem(Item item) {
+        return item_list.add(item);
+    }
+}
+
+// Item model (platform-independent)
+abstract class Item {
+
+    private String title;
+    private String maker;
+    private String description;
+
+    public Item(String title, String maker, String description) {
+        this.title = title;
+        this.maker = maker;
+        this.description = description;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getMaker() {
+        return maker;
+    }
+
+    public void setMaker(String maker) {
+        this.maker = maker;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public abstract Image getImage();
+}
+
+// Android platform-specific Item implementation
+class AndroidItem implements Item {
+
+    private Bitmap image;
+
+    public AndroidItem(String title, String maker, String description, Bitmap image) {
+        this.title = title;
+        this.maker = maker;
+        this.description = description;
+        this.image = image;
+    }
+
+
+
+    @Override
+    public Image getImage() {
         return image;
     }
 }
 
 // Item validation module
-class ItemValidator {
+class ItemValidator implements ItemValidator {
 
     public boolean validateItem(Item item) {
         if (item.getTitle().isEmpty()) {
@@ -83,7 +175,7 @@ class ItemValidator {
 }
 
 // Item creation and saving module
-class ItemCreator {
+class ItemCreator implements ItemCreator {
 
     private final ItemListController item_list_controller;
 
@@ -96,20 +188,6 @@ class ItemCreator {
         // Add item
         boolean success = item_list_controller.addItem(item);
         return success;
-    }
-}
-
-// Item list controller module
-class ItemListController {
-
-    private final ItemList item_list;
-
-    public ItemListController(ItemList item_list) {
-        this.item_list = item_list;
-    }
-
-    public boolean addItem(Item item) {
-        return item_list.add(item);
     }
 }
 

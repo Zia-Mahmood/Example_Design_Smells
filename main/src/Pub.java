@@ -1,4 +1,3 @@
---- REFACTOR ---
 package nerdschool.bar.refactored;
 
 import java.util.HashMap;
@@ -7,6 +6,7 @@ import java.util.Map;
 public class Pub {
     private final Map<String, Drink> drinks = new HashMap<>();
     private final Map<String, Ingredient> ingredients = new HashMap<>();
+    private final DiscountCalculator discountCalculator = new DiscountCalculator();
 
     public Pub() {
         // Initialize drinks
@@ -24,38 +24,37 @@ public class Pub {
     }
 
     public int computeCost(String drink, boolean student, int amount) {
-        DrinkInfo drinkInfo = getDrinkInfo(drink);
-        int cost = drinkInfo.getCost() * amount;
+        Drink drinkInfo = getDrinkInfo(drink);
+        int cost = calculateDrinkCost(amount, drinkInfo.getCost());
 
         if (student) {
-            cost -= cost / 10;
+            cost = discountCalculator.applyDiscount(cost, 10);
         }
 
         return cost;
+    }
+
+    private int calculateDrinkCost(int amount, int cost) {
+        return cost * amount;
     }
 
     public int getIngredientPrice(String ingredient) {
         return ingredients.getOrDefault(ingredient, new Ingredient(ingredient, 0)).getPrice();
     }
 
-    private DrinkInfo getDrinkInfo(String drink) {
+    private Drink getDrinkInfo(String drink) {
         Drink drinkInfo = drinks.get(drink);
         if (drinkInfo == null) {
             throw new RuntimeException("No such drink exists");
         }
-
-        if (amount > 2 && (drink.equals("gt") || drink.equals("bacardi_special"))) {
-            throw new RuntimeException("Too many drinks, max 2.");
-        }
-
         return drinkInfo;
     }
 
-    private static class DrinkInfo {
+    private static class Drink {
         private final String name;
         private final int cost;
 
-        public DrinkInfo(String name, int cost) {
+        private Drink(String name, int cost) {
             this.name = name;
             this.cost = cost;
         }
@@ -73,7 +72,7 @@ public class Pub {
         private final String name;
         private final int price;
 
-        public Ingredient(String name, int price) {
+        private Ingredient(String name, int price) {
             this.name = name;
             this.price = price;
         }
@@ -84,6 +83,19 @@ public class Pub {
 
         public int getPrice() {
             return price;
+        }
+    }
+
+    private static class DiscountCalculator {
+
+        private double discountPercentage;
+
+        public DiscountCalculator() {
+            this.discountPercentage = 0.1;
+        }
+
+        public int applyDiscount(int cost, double discountPercentage) {
+            return (int) (cost - (cost * discountPercentage));
         }
     }
 }

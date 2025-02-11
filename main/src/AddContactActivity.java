@@ -1,6 +1,7 @@
+--- REFACTORING ---
 --- AddContactActivity ---
 
-    package com.example.sharingapp;
+package com.example.sharingapp;
 
 import android.content.Context;
 import android.content.Intent;
@@ -65,20 +66,6 @@ public class AddContactActivity extends AppCompatActivity {
     }
 }
 
---- ContactListControllerFactory ---
-
-package com.example.sharingapp;
-
-/**
- * Factory class for creating ContactListController objects.
- */
-public class ContactListControllerFactory {
-
-    public static ContactListControllerInterface createContactListController() {
-        return new ContactListController();
-    }
-}
-
 --- ContactListController ---
 
 package com.example.sharingapp;
@@ -115,5 +102,109 @@ public class ContactListController implements ContactListControllerInterface {
     @Override
     public void loadContacts(Context context) {
         contactList.loadContacts(context);
+    }
+}
+
+--- ContactListControllerInterface ---
+
+package com.example.sharingapp;
+
+import android.content.Context;
+
+/**
+ * Interface for the contact list controller
+ */
+public interface ContactListControllerInterface {
+
+    boolean addContact(Contact contact, Context context);
+
+    boolean isUsernameAvailable(String username);
+
+    void loadContacts(Context context);
+}
+
+--- Contact ---
+
+package com.example.sharingapp;
+
+import java.util.ArrayList;
+
+/**
+ * Contact information
+ */
+public class Contact {
+    private String username;
+    private String email;
+    private ArrayList<Contact> contacts;
+
+    public Contact(String username, String email, ArrayList<Contact> contacts) {
+        this.username = username;
+        this.email = email;
+        this.contacts = contacts;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public ArrayList<Contact> getContacts() {
+        return contacts;
+    }
+}
+
+--- ContactList ---
+
+package com.example.sharingapp;
+
+import java.util.ArrayList;
+
+/**
+ * Contact list
+ */
+public class ContactList {
+    private ArrayList<Contact> contacts;
+
+    public ContactList() {
+        contacts = new ArrayList<Contact>();
+    }
+
+    public boolean addContact(Contact contact) {
+        if (contacts.contains(contact)) {
+            return false;
+        } else {
+            contacts.add(contact);
+            return true;
+        }
+    }
+
+    public boolean isUsernameAvailable(String username) {
+        for (Contact contact : contacts) {
+            if (contact.getUsername().equals(username)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void loadContacts(Context context) {
+        // TODO: Load contacts from file
+    }
+}
+
+--- ContactListControllerFactory ---
+
+package com.example.sharingapp;
+
+/**
+ * Factory for the contact list controller
+ */
+public class ContactListControllerFactory {
+
+    public static ContactListControllerInterface createContactListController() {
+        return new ContactListController();
     }
 }
