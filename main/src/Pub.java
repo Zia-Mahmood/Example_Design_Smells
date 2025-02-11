@@ -1,67 +1,89 @@
-package nerdschool.bar;
+--- REFACTOR ---
+package nerdschool.bar.refactored;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Pub {
-    public static final String ONE_BEER = "hansa";
-    public static final String ONE_CIDER = "grans";
-    public static final String A_PROPER_CIDER = "strongbow";
-    public static final String GT = "gt";
-    public static final String BACARDI_SPECIAL = "bacardi_special";
+    private final Map<String, Drink> drinks = new HashMap<>();
+    private final Map<String, Ingredient> ingredients = new HashMap<>();
+
+    public Pub() {
+        // Initialize drinks
+        drinks.put("hansa", new Drink("hansa", 74));
+        drinks.put("grans", new Drink("grans", 103));
+        drinks.put("strongbow", new Drink("strongbow", 110));
+
+        // Initialize ingredients
+        ingredients.put("rum", new Ingredient("rum", 65));
+        ingredients.put("grenadine", new Ingredient("grenadine", 10));
+        ingredients.put("lime juice", new Ingredient("lime juice", 10));
+        ingredients.put("green stuff", new Ingredient("green stuff", 10));
+        ingredients.put("tonic water", new Ingredient("tonic water", 20));
+        ingredients.put("gin", new Ingredient("gin", 85));
+    }
 
     public int computeCost(String drink, boolean student, int amount) {
+        DrinkInfo drinkInfo = getDrinkInfo(drink);
+        int cost = drinkInfo.getCost() * amount;
 
-        if (amount > 2 && (drink == GT || drink == BACARDI_SPECIAL)) {
-            throw new RuntimeException("Too many drinks, max 2.");
+        if (student) {
+            cost -= cost / 10;
         }
-        int price;
-        if (drink.equals(ONE_BEER)) {
-            price = 74;
-        }
-        else if (drink.equals(ONE_CIDER)) {
-            price = 103;
-        }
-        else if (drink.equals(A_PROPER_CIDER)) price = 110;
-        else if (drink.equals(GT)) {
-            price = ingredient6() + ingredient5() + ingredient4();
-        }
-        else if (drink.equals(BACARDI_SPECIAL)) {
-            price = ingredient6()/2 + ingredient1() + ingredient2() + ingredient3();
-        }
-        else {
+
+        return cost;
+    }
+
+    public int getIngredientPrice(String ingredient) {
+        return ingredients.getOrDefault(ingredient, new Ingredient(ingredient, 0)).getPrice();
+    }
+
+    private DrinkInfo getDrinkInfo(String drink) {
+        Drink drinkInfo = drinks.get(drink);
+        if (drinkInfo == null) {
             throw new RuntimeException("No such drink exists");
         }
-        if (student && (drink == ONE_CIDER || drink == ONE_BEER || drink == A_PROPER_CIDER)) {
-            price = price - price/10;
+
+        if (amount > 2 && (drink.equals("gt") || drink.equals("bacardi_special"))) {
+            throw new RuntimeException("Too many drinks, max 2.");
         }
-        return price*amount;
+
+        return drinkInfo;
     }
 
-    //one unit of rum
-    private int ingredient1() {
-        return 65;
+    private static class DrinkInfo {
+        private final String name;
+        private final int cost;
+
+        public DrinkInfo(String name, int cost) {
+            this.name = name;
+            this.cost = cost;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getCost() {
+            return cost;
+        }
     }
 
-    //one unit of grenadine
-    private int ingredient2() {
-        return 10;
-    }
+    private static class Ingredient {
+        private final String name;
+        private final int price;
 
-    //one unit of lime juice
-    private int ingredient3() {
-        return 10;
-    }
-    
-    //one unit of green stuff
-    private int ingredient4() {
-        return 10;
-    }
+        public Ingredient(String name, int price) {
+            this.name = name;
+            this.price = price;
+        }
 
-    //one unit of tonic water
-    private int ingredient5() {
-        return 20;
-    }
+        public String getName() {
+            return name;
+        }
 
-    //one unit of gin
-    private int ingredient6() {
-        return 85;
+        public int getPrice() {
+            return price;
+        }
     }
 }
