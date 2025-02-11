@@ -1,3 +1,4 @@
+--- REFACTOR ---
 package com.example.sharingapp;
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +12,7 @@ import android.widget.EditText;
  * contact's id.
  * Note: You will not be able to edit contacts which are "active" borrowers
  */
-public class EditContactActivity extends AppCompatActivity implements Observer {
+public class EditContactActivity extends AppCompatActivity {
 
     private ContactList contact_list = new ContactList();
     private ContactListController contact_list_controller = new ContactListController(contact_list);
@@ -38,7 +39,6 @@ public class EditContactActivity extends AppCompatActivity implements Observer {
         pos = intent.getIntExtra("position", 0);
 
         context = getApplicationContext();
-        contact_list_controller.addObserver(this);
         contact_list_controller.loadContacts(context);
         on_create_update = false;
     }
@@ -86,18 +86,6 @@ public class EditContactActivity extends AppCompatActivity implements Observer {
         return true;
     }
 
-    public void deleteContact(View view) {
-
-        // Delete contact
-        boolean success = contact_list_controller.deleteContact(contact, context);
-        if (!success) {
-            return;
-        }
-
-        // End EditContactActivity
-        finish();
-    }
-
     /**
      * Called when the activity is destroyed, thus we remove this activity as a listener
      */
@@ -124,5 +112,41 @@ public class EditContactActivity extends AppCompatActivity implements Observer {
             username.setText(contact_controller.getUsername());
             email.setText(contact_controller.getEmail());
         }
+    }
+}
+
+public class DeleteContactActivity extends AppCompatActivity {
+
+    private ContactList contact_list = new ContactList();
+    private ContactListController contact_list_controller = new ContactListController(contact_list);
+
+    private Contact contact;
+    private ContactController contact_controller;
+
+    private Context context;
+    private int pos;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_delete_contact);
+
+        Intent intent = getIntent();
+        pos = intent.getIntExtra("position", 0);
+
+        context = getApplicationContext();
+        contact_list_controller.loadContacts(context);
+    }
+
+    public void deleteContact(View view) {
+
+        // Delete contact
+        boolean success = contact_list_controller.deleteContact(contact, context);
+        if (!success) {
+            return;
+        }
+
+        // End DeleteContactActivity
+        finish();
     }
 }
